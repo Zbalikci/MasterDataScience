@@ -6,7 +6,7 @@ from pyspark import SparkContext
 motif = re.compile("\w+")
 sc = SparkContext()
 lines = sc.textFile(sys.argv[1])
-word_count= lines.flatMap(lambda line: line.split())
+word_count= lines.flatMap(lambda line: motif.findall(line))
 word_count2 = word_count.filter(lambda word:len(word)>5)
 word_count3 = word_count2.map(lambda  word: ( word.lower(),1))
 word_count4 = word_count3.reduceByKey(lambda a,b: a+b)
