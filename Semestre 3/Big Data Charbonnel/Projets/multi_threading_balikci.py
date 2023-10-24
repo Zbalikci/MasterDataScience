@@ -6,8 +6,9 @@ from asyncio import LifoQueue
 from asyncio import Queue
 import threading
 
-tb,tc,tp,ts= 1,1,1,1 # temps que prend un client à boire, temps de prise de commande, temps de préparation du boisson, temps de service
+tb,tc,tp,ts= 1,1,1,1 # Dans l'ordre temps que prend un client à boire, temps de prise de commande, temps de préparation du boisson, temps de service
 verbose = int(input("Niveau de verbosité pour les messages (0, 1 ou 2): "))
+
 #########################    Variables global    #########################
 global commande_termine
 commande_termine = False
@@ -135,11 +136,13 @@ class Serveur(threading.Thread):
                 break
             else:
                 await asyncio.sleep(0.1)
+
+    async def main(self):
+        tasks=[self.prendre_commande(),self.servir()]
+        await asyncio.gather(*tasks)
+
     def run(self):
-        async def main():
-            tasks=[self.prendre_commande(),self.servir()]
-            await asyncio.gather(*tasks)
-        asyncio.run(main())
+        asyncio.run(self.main())
 
 class Barman(threading.Thread):
 
@@ -188,8 +191,10 @@ class Barman(threading.Thread):
                 break
             else :
                 await asyncio.sleep(0.1)
+
+    async def main(self):
+        tasks=[self.preparer(),self.encaisser()]
+        await asyncio.gather(*tasks)
+        
     def run(self):
-        async def main():
-            tasks=[self.preparer(),self.encaisser()]
-            await asyncio.gather(*tasks)
-        asyncio.run(main())
+        asyncio.run(self.main())
