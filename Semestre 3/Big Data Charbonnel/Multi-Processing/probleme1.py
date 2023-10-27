@@ -21,7 +21,11 @@ logging.basicConfig(level=logging.DEBUG, filename="app.log", filemode="w", forma
 
 if __name__ == "__main__":
   path_jobs = sys.argv[1]
+  print(os.getcwd())
+  sys.path.insert(0,path_jobs)
+  print(os.getcwd())
   os.chdir(path_jobs)
+  print(os.getcwd())
   jobs_files = glob.glob('*.py') 
   jobs = [module[:-3] for module in jobs_files]
   for job in jobs:
