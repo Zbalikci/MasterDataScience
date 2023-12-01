@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Page d'Accueil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1> Comment interroger l’encyclopédie ?</h1>
+
+    <h2> Pour récupérer tous les données disponible dans la base de donnée locale :</h2>
+    <p> L’URL /ws renvoie toutes les données sous forme de dictionnaire </p>
+
+    <h2> Pour récupérer les topics de l’encyclopédie : </h2>
+    <p> L’URL /ws/topics renvoie la liste des topics disponibles localement. Par exemple http://12I008.stud.ua:8888/ws/topics pourrait renvoyer : </p>
+    <pre>[ "types", "fonctions", "multithreading", "POO" ]</pre>
+
+    <h2> Pour récupérer les items d’un topic donné :</h2>
+    <p> L’URL /ws/topic/le_topic (où le_topic est un argument à fournir) renvoie un dictionnaire dont les clés sont les items du topic, et la valeur une liste d’URL. Par exemple http://12I008.stud.ua:8888/ws/topic/multithreading renverrait : </p>
+    <pre>{"exemples": [url, url,...], "piège": [url, url,...], "FAQ": [url, url,...], "définition": [url, url,...]}</pre>
+
+    <h2> Pour récupérer les adresse des serveurs qui participe au projet :</h2>
+    <p> Chaque service web fournit, en réponse à la requête /ws/annuaire, la liste des serveurs (qu’il connait) participant à l’encyclopédie, sous la forme d’une liste d’URL. </p>
+    <pre>[ "http://01i008:8888", "http://03i008:1245", "http://192.168.123.10:2000"]</pre>
+
+
+
+</body>
+</html>
