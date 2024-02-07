@@ -1,0 +1,38 @@
+Questions :
+
+
+1) Observer les images. Expliquer où se situe la difficulté de la tâche.
+
+Le fond des images n'est pas la même, y'a des bulles c'est pas la même échelle et la densité.
+
+2) Montrer qu’un simple seuillage identique pour toutes les images risque de ne pas fonctionner ici.
+
+Il y a bcp de dversité entre les images qu'on a donc on ne peut pas predre un simple seuillage identique
+
+Faire la question 4 avant la 3
+
+3) Choisir un jeu d’image à annoter dans Weka pour entraîner un modèle. Expliquer le choix du jeu d’images.
+8 image choisis puis mis en stack
+
+4) Ouvrir l’ensemble des images dans un stack virtuel et réduire leur taille par un facteur 4.
+Scale
+X scale 0.25
+Y scale 0.25
+Z scale 1 (on le garde 1)
+
+
+5) Annoter les images et entraîner un modèle sur Weka. Sauver ce modèle que vous joindrez avec votre compte rendu.
+
+Create new class -- > 3 classes Hype Conidie fond
+train classifier
+Save classifier
+
+
+6) Annoter manuellement ce jeu afin de créer une vérité terrain. Vous fournirez cette vérité terrain.
+Créer dossier test = une dizaine d'images
+
+7) Comparer quantitativement et qualitativement les performances de la segmentation entre la vérité terrain et votre modèle Weka
+8) Appliquer votre modèle à l’ensemble du jeu d’images.
+9) Analyser les résultats. Quelles sont les images pour lesquelles le modèle a bien fonctionné et pour lesquelles il échoue.
+10) Débruiter si nécessaire l’image segmentée.
+11) Calculer pour l’ensemble du jeu d’image la surface d’hyphe et de conidie après calibrations des images pour un affichage en micromètre^2.

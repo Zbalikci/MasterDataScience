@@ -1,0 +1,222 @@
+---
+title: "RD3 - TP AFC"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+# Exercice I: Reprendre l'exemple csp2 vu dans le TP acp 
+
+1. Construire les profils lignes et les fréquences marginales.
+```{r}
+
+library(FactoMineR);library(factoextra);library("corrplot")
+CSP =read.table('csp.txt',t=T)
+round(prop.table(as.matrix(CSP[,1:7]),1),2) # profil ligne
+round(prop.table(as.matrix(CSP[,1:7]),2),2) # profil colonne
+round(prop.table(apply(CSP[,1:7],1,sum)),2) #fréquence marginale ligne
+round(prop.table(apply(CSP[,1:7],2,sum)),2) #fréquence marginale colonne
+
+```
+2. Réalisez l'AFC du tableau en prenant les colonnes csp et nb en supplémentaire (comment).
+```{r}
+CSP[,9]=as.factor(CSP[,9])
+afc=CA(CSP,quali.sup = 8:9)
+afc
+```
+
+3. Représenter les modalités dans le plan F1-F2 en éliminant celle de cos2 médiocre.
+```{r}
+plot.CA(afc,selectCol="cos2 0.8",selectRow="cos2 0.8") #qualité de représentation sup à 0.8 sur le plan factoriel
+```
+
+4. Faire le bilan des contributions axes par axe.
+```{r}
+corrplot(afc$col$contrib, is.corr = FALSE) #colonne
+corrplot(afc$row$contrib, is.corr = FALSE) #ligne
+plot.CA(afc,selectCol="contrib 4",selectRow="contrib 4")
+```
+
+5. Utiliser graphiquement les variables csp et nb pour aider l'interprétation.
+```{r}
+fviz_ca_biplot(afc,col.row=CSP$nb)
+fviz_ca_row(afc,col.row=CSP$csp, addEllipses=TRUE)
+```
+
+6. Analyser les différences avec l'ACP du même tableau.
+```{r}
+
+```
+
+
+# Exercice II: exemple "enfants" 
+Quand on vous dit enfant, à quel adjectif pensez vous?
+
+On présente ci-dessous le résultat d'une enquête en fonction de la catégorie socio-professionnelle des personnes interrogées. 
+
+```{r, eval = FALSE} 
+enfant=read.table('enfant.csv',sep=',',h=T,row.names=1)
+enfant
+```
+
+Pour répondre aux questions, créer un notebook ou un document oo dans lequel vous conserverez les sorties ainsi que vos commentaires. 
+
+0.Réaliser une courte analyse descriptive élémentaire du tableau. Construire deux colonnes supplémentaires, SB somme des colonnes sans le bac et AB somme des colonnes avec le bac. On pourra utiliser la fonction apply.
+
+```{r}
+round(prop.table(as.matrix(enfant),1),2) #profil ligne
+round(prop.table(as.matrix(enfant),2),2) #profil colonne
+SB=apply(enfant[,1:3], 1,sum)
+AB=apply(enfant[,4:5], 1,sum)
+data=cbind(enfant,AB,SB)
+data
+```
+
+
+
+1. Réaliser l'AFC  de ce tableau, en utilisant les 2 colonnes en supplémentaire, notée enfant.ca.
+
+```{r}
+enfant.ca=CA(data,col.sup = 6:7,nc=2)
+```
+
+2. Déterminer les axes retenus pour l'analyse en justifiant votre choix. Quelle est la qualité de l'AFC dans le plan F1-F2. Justifier l'intérêt et les objectifs d'une AFC en utilisant un test statistique lié à l'inertie du nuage.
+
+On peut choisir seulement 2 axes, cela semble suffisant d'après la méthode du coude.
+La qualité de l'AFC dans le plan F1-F2 est de 78.17% .
+
+```{r}
+enfant.ca$eig
+fviz_eig(enfant.ca,addlabels = TRUE)
+chisq.test(data)
+
+```
+
+
+3. Déterminer les modalités mal représentées dans le plan F1-F2. Représenter graphiquement les modalités bien représentées ?
+Finance, egoisme et logement mal représentés
+BEPC mal représenté.
+BAC et UNIV bien représenté.
+```{r}
+enfant.ca$row$cos2
+enfant.ca$col$cos2
+plot.CA(enfant.ca,selectCol="cos2 0.8",selectRow="cos2 0.8") #qualité de représentation sup à 0.8 sur le plan factoriel
+```
+
+4. Pour les axes F1 F2, déterminer les modalités ayant contribuées et donner une signification à ces axes. On pourra pour chaque axe faire l'énumérations des profils colonnes et ligne ayant contribuées positivement ou négativement (position sur l'axe).
+Egoisme et logement mal représentées par le premier plan factoriel.
+AXE 1 : - Chomage
+        + Avenir
+AXE 2 : - Emploi
+        + Economique
+
+```{r}
+round(cbind(enfant.ca$row$coord,enfant.ca$row$contrib,enfant.ca$row$cos2),2)
+#ou bien
+plot.CA(enfant.ca,selectCol = 'contrib 4',selectRow = 'contrib 4')
+
+```
+
+
+5. Représenter les colonnes supplémentaires. Rappeler leur rôle.
+```{r}
+plot.CA(enfant.ca)
+```
+
+
+6. a. Que peut-on dire des prfils Conjoncture et Economique, des profils Peur et Guerre. Vérifier le avec le calcul de leur profil.
+    Le profil des personnes qui répondent Conjoncture est proche du profil des personnes qui répondent Economique.
+    De même pour Peur et Guerre qui sont très proche.
+    Calcul des profils :
+```{r}
+round(prop.table(as.matrix(enfant),1),2) # profil ligne
+```
+    
+   b.Que peut-on dire des profil UNIV et Economique? Comment le vérifier?
+   Plus on a un niveau de diplôme élevée plus on réfelchi à la situation économiqe.
+    
+   c. Pourquoi peut-on représenter et interpréter dans un même espace les "distances"" entre profils ligne et colonne?
+   Grâce aux relations quasi-barycentrique.
+    
+   d. Que peut on dire du profil Egoisme placé proche de l'origine. Vérifier le en calculant son profil et le profil marginal.
+   Egoisme se repartit comme un individu moyen sur tout la population
+    
+   e. Proposer une interprétention des résultats. 
+
+7. Réaliser une classification ascendante hièrarchique des profils lignes.
+
+A chaque étape, l'algorithme regroupe les profils les plus proches. Plus le noeud regroupant deux profils est bas, plus les profils sont proches. Il suffit de couper l'arbre pour obtenir une partition.
+
+```{r, eval = FALSE} 
+enfant.hcpc = HCPC(enfant.ca)
+```
+
+Combien de groupes suggèrent le résultat et propose le logiciel? Justifier ce choix et réaliser le en cliquant.
+
+9. Examen de la CAH
+`enfant.hcpc$desc.var`: Pour chaque groupe indique les colonnes qui les différencient le plus. Ici du fait du peu de colonnes, elles participent toutes à la différenciation des groupes. 
+
+`enfant.hcpc$desc.ind$para`: Pour chaque groupe, les 5 meilleurs individus les plus proches du centre du cluster sont affichés. Ces individus sont appelés paragones. La distance entre chaque individu et le centre du groupe est fournie.
+
+
+`enfant.hcpc$desc.axes`:  Différenciation des groupes suivant les axes factoriels permettant de relier les groupes aux composantes principales.
+
+```{r}
+library(explor)
+explor(enfant.ca)
+dimdesc(enfant.ca)
+estim_ncp()
+```
+
+
+
+# Exercice III : Effet Guttman
+
+This data set gives the densities per hectare of 11 species of trees for 10 transects of topographic moisture values (mean of several stations per class).
+```{r, eval = FALSE} 
+library (ade4)
+data (santacatalina)
+?santacatalina
+```
+
+1. Réaliser l'AFC de ce tableau. Analyser les résultats. 
+
+
+2. Les profils se répartissent de façon spécifique. Comment s'appelle ce résultat. Pour comprendre, utilisons la library ade4:
+
+```{r, eval = FALSE} 
+library (ade4)
+coa <- dudi.coa (santacatalina, scannf=FALSE)
+scatter (coa)
+score (coa,xax=1)
+```
+
+`score(coa)` décrit les scores pour les différents profils ligne et colonne de la composante 1.
+`score(coa)` décrit les scores réciproques de l'axe 1 pour les différents profils ligne et colonne, score utilisé en écologie pour étudier les associations, défini dans :
+
+http://pbil.univ-lyon1.fr/JTHome/Biblio/arti071.pdf
+
+Le score d'une combinaison $i,j$ d'un axe $k$ est ainsi $H_k(i,j)=\frac{F_L^k(i)+F_k^C(j)}{\sqrt{2\lambda_k(1+\sqrt{\lambda_k})}}$ dont on déduit le score moyen pour $i$ par $m_k(i)=\sum_j \frac{f_{ij}}{f_{i.}} H_k(i,j) = \frac{\sqrt{1+\sqrt{\lambda_k}}}{\sqrt{\lambda_k}} F_L^k(i)$ proportionnel à la composante principale  ainsi que la variance $s^2_k(i)= \sum_j \frac{f_{ij}}{f_{i.}} H_k^2(i,j) - m_k^2(i)$.
+
+Le score moyen peut être vu comme la comosante princuipale à un facteur près et la variabilité comme la spécificité de l'association, à la limite une association exclusive serait llimté à un point , une association très large par un trait vertical grand.
+
+
+```{r, eval = FALSE} 
+g <- t ( santacatalina[order (coa$li[,1]),] )
+# tri des espèces suivant F1 et transposition
+par (mfrow=c(3,4), mar=c(5,3,.5,1))
+palette (rainbow (ncol (g))) # choix des couleurs
+for (i in 1: ncol(g)) barplot (g[,i], xlab=colnames(g)[i], col=i)
+palette ("default")
+
+```
+
+```{r, eval = FALSE} 
+par(mfrow=c(1,2))
+table.value (santacatalina, grid=TRUE) # 1 Tableau des données
+table.value (santacatalina[order(coa$li[,1]), order(coa$co[,1])], grid=TRUE) # 2
+par(mfrow=c(1,1))
+
+```
+tselle interprétation donner aux résultats obtenus.
+
+

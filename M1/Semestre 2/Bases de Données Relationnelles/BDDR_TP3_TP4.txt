@@ -1,0 +1,280 @@
+https://dbdiagram.io/d
+
+Table prof {
+  id_prof int 
+  id_universite int 
+  nom varchar
+  age int 
+  Indexes {
+    (id_prof,id_universite) [pk]
+  }
+}
+
+Table ville {
+  id_ville int [pk, increment] 
+
+  nom_ville varchar
+}
+
+Table universite {
+  id_universite int
+  id_ville int
+  nom_universite varchar
+  Indexes {
+    (id_ville,id_universite) [pk]
+  }
+ }
+
+// > many-to-one; < one-to-many; - one-to-one; <> many-to-many
+ 
+Ref: prof.id_universite > universite.id_universite
+Ref: universite.id_ville > ville.id_ville
+
+#################################################################################
+
+Table client {
+  id_client int [pk]
+  nom varchar
+  prenom varchar
+  num_tel int 
+  adresse varchar
+
+}
+
+Table hotel {
+  id_hotel int [pk]
+  nom_hotel varchar
+  
+}
+
+Table etage{
+  id_etage int 
+  id_hotel int
+  num_etage int
+  Indexes{
+    (id_hotel,id_etage) [pk]
+  }
+  
+}
+
+Table type_chambre {
+  id_type int [pk]
+  nom varchar
+  prix int
+}
+
+Table chambre {
+  id_chambre int
+  num_chambre varchar(3)
+  id_etage int
+  id_type int
+  Indexes {
+    (id_chambre,id_type,id_etage) [pk]
+  }
+}
+
+Table reservation {
+  id_reservation int
+  id_client int
+  date_debut date
+  date_fin date
+  id_chambre int
+  Indexes {
+    (id_reservation,id_client, id_chambre) [pk]
+  }
+}
+
+Ref : etage.id_etage > chambre.id_etage
+Ref : hotel.id_hotel > etage.id_hotel
+Ref : type_chambre.id_type > chambre.id_type
+Ref : client.id_client < reservation.id_client
+Ref : reservation.id_chambre > chambre.id_chambre
+
+
+###########################################################
+
+DROP TABLE IF EXISTS Client;
+
+CREATE TABLE Client ( 
+     id_client       SERIAL NOT NULL, 
+     nom             VARCHAR (20) NOT NULL, 
+     prenom          VARCHAR (20) NOT NULL, 
+     num_tel         INT NOT NULL,
+     adresse         TEXT NULL,
+     PRIMARY KEY (id_client)
+  ); 
+
+
+DROP TABLE IF EXISTS Reservation;
+
+CREATE TABLE Reservation ( 
+     id_reservation      SERIAL PRIMARY Key NOT NULL,
+  	 id_client           INT NOT NULL,
+     date_debut          TIMESTAMP NOT NULL  ,
+     date_fin            TIMESTAMP NOT NULL ,
+     id_chambre          INT NOT NULL,
+  	FOREIGN KEY (id_client) REFERENCES client(id_client),
+    FOREIGN KEY (id_chambre) REFERENCES chambre(id_chambre)
+  ); 
+  
+
+DROP TABLE IF EXISTS Hotel;
+
+CREATE TABLE Hotel ( 
+     id_hotel          SERIAL PRIMARY KEY NOT NULL, 
+     nom_hotel         VARCHAR (50) NOT NULL
+  ); 
+  
+DROP TABLE IF EXISTS Etage;
+
+CREATE TABLE Etage ( 
+     id_etage          PRIMARY KEY NOT NULL, 
+     id_hotel          INT NOT NULL,
+     nom_etage         VARCHAR (20) NOT NULL,
+     FOREIGN KEY (id_hotel) REFERENCES hotel(id_hotel)
+  ); 
+  
+DROP TABLE IF EXISTS Typechambre;
+
+CREATE TABLE Typechambre ( 
+     id_type           SERIAL PRIMARY KEY NOT NULL, 
+     nom               VARCHAR (20) NOT NULL,
+     prix              INT NOT NULL
+  ); 
+
+DROP TABLE IF EXISTS Chambre;
+
+CREATE TABLE Chambre ( 
+     id_chambre        SERIAL PRIMARY KEY NOT NULL, 
+     num_chambre       VARCHAR (3) NOT NULL,
+     id_etage          INT NOT NULL,
+     id_type           INT NOT NULL,
+    FOREIGN KEY (id_etage) REFERENCES etage(id_etage),
+    FOREIGN KEY (id_type) REFERENCES typechambre(id_type)
+  );
+
+-- chercher dans le site https://www.mockaroo.com/
+
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (1, 'Roger', 'Girardet', '387-148-7676', '76447 Emmet Hill');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (2, 'Odelle', 'Simms', '706-161-9947', '56 Kim Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (3, 'Jonah', 'Bygrave', '649-635-2153', '984 Novick Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (4, 'Salomone', 'Maund', '726-696-0574', '5 Hovde Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (5, 'Sanford', 'Menat', '690-836-2046', '371 Mallard Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (6, 'Lynnell', 'Calverley', '869-891-2122', '404 American Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (7, 'Guendolen', 'McCurrie', '474-216-6586', '391 Clarendon Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (8, 'Boothe', 'Sturgeon', '290-754-2056', '17 Helena Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (9, 'Mylo', 'Mulford', '818-581-5352', '68972 Prairieview Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (10, 'Skipton', 'Ruff', '220-271-8349', '97246 Hintze Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (11, 'Donna', 'Cockett', '293-283-9108', '700 Dexter Plaza');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (12, 'Hamilton', 'Akett', '231-537-1452', '99223 Gerald Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (13, 'Vilhelmina', 'McCoughan', '236-880-2354', '9 South Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (14, 'Thacher', 'Bartleman', '982-420-8936', '64156 Scoville Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (15, 'Garwood', 'Linkie', '504-557-8576', '1249 Pawling Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (16, 'Odele', 'Richardt', '573-292-8472', '4 Kingsford Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (17, 'Freddi', 'Frazer', '649-632-8487', '008 Merchant Way');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (18, 'Dagny', 'Smidmore', '566-746-9813', '84537 Sherman Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (19, 'Costa', 'Bamling', '892-955-2839', '06 Morrow Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (20, 'Cathrine', 'Todd', '398-440-2884', '4 Myrtle Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (21, 'Adelind', 'Kopman', '353-840-0141', '68328 Basil Park');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (22, 'Bruis', 'Twinterman', '374-465-4805', '25 Quincy Street');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (23, 'Domeniga', 'Memmory', '414-942-0233', '63312 Prairie Rose Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (24, 'Lauree', 'Tuffield', '968-717-8987', '07 Meadow Ridge Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (25, 'Tybalt', 'Caseley', '230-697-7749', '01 Farragut Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (26, 'Coraline', 'Merwe', '638-451-1109', '00 Division Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (27, 'Genvieve', 'Retchford', '983-633-6694', '4 Banding Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (28, 'Brandise', 'Terne', '854-496-9674', '85541 North Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (29, 'Isidoro', 'Sutterfield', '586-414-6835', '79 Mcbride Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (30, 'Christoph', 'Gazzard', '364-297-1042', '3 Merrick Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (31, 'Greg', 'Androck', '759-810-5763', '27 Grayhawk Way');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (32, 'Dylan', 'Seifenmacher', '760-508-9160', '04729 Meadow Ridge Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (33, 'Sandy', 'Overington', '174-332-1718', '1 Russell Hill');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (34, 'Bradford', 'Matchitt', '452-727-5120', '88454 Summer Ridge Way');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (35, 'Arlette', 'Coupland', '913-418-9080', '6 Service Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (36, 'Shantee', 'Sneezem', '551-896-9203', '7674 Sage Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (37, 'Godart', 'Fantone', '826-342-7642', '35270 Menomonie Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (38, 'Lynnett', 'Kleinbaum', '915-295-6796', '32 Randy Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (39, 'Germaine', 'Matuska', '447-675-1667', '7 Scott Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (40, 'Corene', 'Samudio', '975-447-6554', '39620 Cordelia Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (41, 'Garrick', 'Hay', '140-563-2435', '26 Maple Wood Circle');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (42, 'Godfrey', 'Piatek', '885-415-3147', '0490 Westridge Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (43, 'Benedetta', 'Maclaine', '147-581-4446', '9 Ridgeway Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (44, 'Kamillah', 'MacLure', '456-690-6445', '60 Lakewood Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (45, 'Lois', 'Scrafton', '835-333-4731', '987 Namekagon Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (46, 'Jayme', 'Cardinal', '363-739-0451', '9 Pine View Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (47, 'Welby', 'Vernall', '922-438-9538', '54 Service Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (48, 'Arney', 'Hehir', '508-140-4902', '59401 Crowley Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (49, 'Silvano', 'Diffley', '175-395-3049', '663 Golf View Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (50, 'Harriette', 'Huntriss', '929-597-0686', '04 Rusk Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (51, 'Lefty', 'Moth', '921-796-4993', '7 Bartillon Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (52, 'Nelia', 'Francescozzi', '268-660-8396', '12 Shelley Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (53, 'Bartlett', 'Braysher', '724-762-2912', '21644 Mendota Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (54, 'Cody', 'Raeside', '219-572-3329', '6 Banding Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (55, 'Eric', 'Georghiou', '133-672-0020', '6 Algoma Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (56, 'Fan', 'Joanaud', '845-772-7136', '879 Namekagon Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (57, 'Nerte', 'Hubbuck', '381-311-3074', '15 Towne Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (58, 'Damita', 'Le Teve', '569-237-9779', '95232 Pepper Wood Street');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (59, 'Dolph', 'Haggard', '600-423-9792', '9 Del Mar Lane');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (60, 'Reggy', 'Brunsen', '532-907-3539', '4550 High Crossing Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (61, 'Aron', 'Baigent', '824-318-5063', '39610 Forest Dale Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (62, 'Ida', 'Featherstonehaugh', '825-144-8281', '35 Mayer Plaza');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (63, 'Nichols', 'Poxon', '285-567-0058', '8 Golf View Pass');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (64, 'Tobias', 'Kynnd', '486-729-5529', '95 Melby Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (65, 'Haze', 'Wathall', '733-310-4047', '3412 Mifflin Pass');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (66, 'Alvan', 'Overlow', '655-680-8725', '7 Magdeline Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (67, 'Murielle', 'Stones', '426-491-2585', '009 Algoma Terrace');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (68, 'Alecia', 'Rankcom', '994-219-1869', '547 Warner Way');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (69, 'Sharla', 'Yanez', '424-555-7567', '66026 Charing Cross Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (70, 'Cort', 'Trebilcock', '627-107-5405', '459 Canary Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (71, 'Swen', 'Quemby', '978-276-5954', '72 Atwood Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (72, 'Duffie', 'Livesey', '617-215-0400', '7 Comanche Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (73, 'Ricki', 'Belding', '167-964-6010', '1 Tennyson Lane');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (74, 'Luisa', 'Pendlenton', '418-583-8213', '5 Jenna Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (75, 'Niles', 'Hofer', '240-468-1104', '34 Hollow Ridge Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (76, 'Tessy', 'Alfonso', '885-610-0922', '8 Columbus Court');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (77, 'Karilynn', 'Hickisson', '567-933-5442', '878 Carberry Hill');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (78, 'Clayson', 'Minchi', '617-208-7926', '9 Talmadge Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (79, 'Bryon', 'Sackur', '803-342-7023', '887 Independence Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (80, 'Hetty', 'Hollingsbee', '882-408-6742', '6 Longview Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (81, 'Mehetabel', 'Goodison', '631-691-0967', '826 Delladonna Center');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (82, 'Nina', 'Crowthe', '281-555-3733', '17 Cambridge Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (83, 'Fawnia', 'Blogg', '240-947-2579', '23793 Grayhawk Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (84, 'Amelie', 'Kinleyside', '287-634-4239', '80693 Briar Crest Drive');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (85, 'Georgetta', 'Di Batista', '847-941-2932', '57227 Forster Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (86, 'Lissi', 'Ginner', '707-573-7082', '96 La Follette Street');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (87, 'Pernell', 'Tzar', '894-393-4175', '13860 Granby Junction');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (88, 'Lucius', 'McElwee', '909-300-2033', '759 Shopko Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (89, 'Baryram', 'Risson', '851-167-8097', '7965 Superior Point');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (90, 'Cheryl', 'Wenzel', '661-776-8477', '9758 Ohio Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (91, 'Aggie', 'Boerder', '343-784-4283', '17 Laurel Avenue');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (92, 'Egor', 'Skeates', '420-335-0179', '92 Pearson Hill');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (93, 'Hazlett', 'Todaro', '929-862-5472', '94949 Westerfield Trail');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (94, 'Dexter', 'Sebyer', '233-141-5439', '35574 Armistice Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (95, 'Ron', 'Marling', '896-909-6536', '071 Mandrake Alley');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (96, 'Tammy', 'Mulbery', '342-232-6014', '966 Manufacturers Place');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (97, 'Tracie', 'Normanville', '965-753-2305', '7 Sommers Parkway');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (98, 'Arlen', 'Chancellor', '232-649-2707', '0 Northridge Crossing');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (99, 'Jeth', 'Pilkington', '598-107-3981', '771 Wayridge Road');
+insert into Client (id_client, prenom, nom, num_tel, adresse) values (100, 'Bethany', 'Southcomb', '466-194-9196', '8185 Cody Park');
+
+INSERT INTO Hotel (id_hotel, nom_hotel) VALUES (1, 'Le Saint-Bob');
+INSERT INTO Hotel (id_hotel, nom_hotel) VALUES (2, 'Le Saint-Ségur ');
+
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (0, 1, 'Rez-de-Chaussé');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (1, 1, 'Première étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (2, 1, 'Deuxième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (3, 1, 'Troisième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (4, 1, 'Quatrième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (5, 1, 'Cinquième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (6, 1, 'Sixième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (7, 1, 'Septième étage');
+
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (8, 2, 'Rez-de-Chaussé');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (9, 2, 'Première étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (10, 2, 'Deuxième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (11, 2, 'Troisième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (12, 2, 'Quatrième étage');
+INSERT INTO Etage (id_etage,id_hotel,nom_etage) VALUES (13, 2, 'Cinquième étage');
+
+INSERT INTO Typechambre(id_type,nom,prix) VALUES (1,'Simple', 50 );
+INSERT INTO Typechambre(id_type,nom,prix) VALUES (2,'Double', 65 );
+INSERT INTO Typechambre(id_type,nom,prix) VALUES (3,'Royale', 150 );

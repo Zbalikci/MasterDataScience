@@ -1,0 +1,20 @@
+-- SELECT title, release_year, length FROM film ORDER BY release_year DESC, title ASC
+-- SELECT first_name, last_name FROM actor WHERE last_name=="JACKMAN"
+-- SELECT COUNT(name) FROM category
+-- SELECT min(rental_duration) AS MIN, max(rental_duration) AS MAX, avg(rental_duration) AS MOYENNE FROM film
+-- SELECT release_year, COUNT(*) from film GROUP BY release_year
+-- Select address_id,address ||","|| postal_code as ADRESSE From address WHERE postal_code!='NULL' ORDER BY postal_code,address ASC 
+-- SELECT rating from film GROUP BY rating
+
+-- SELECT film.title, film.language_id, language.name
+-- from film,language WHERE film.language_id == language.language_id
+
+-- SELECT film.language_id, language.name, COUNT(film.title) AS Nombre_de_films
+-- from film,language WHERE film.language_id == language.language_id
+
+SELECT payment.rental_id, payment.amount, rental.inventory_id, inventory.film_id , film.title
+from payment, rental, inventory,film
+WHERE payment.rental_id==rental.rental_id AND inventory.inventory_id==rental.inventory_id AND inventory.film_id==film.film_id
+GROUP BY film.title
+HAVING sum(payment.amount)
+ORDER BY amount DESC

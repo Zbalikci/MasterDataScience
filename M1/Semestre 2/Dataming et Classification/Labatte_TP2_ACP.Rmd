@@ -1,0 +1,213 @@
+---
+title: "RD2 - TP ACP"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Utiliser le document STHDA sur l'acp en ligne.
+
+# Exercice I: exemple "Budget-Temps-ONU" 
+
+Il s'agit d'une enquête (ONU 1967) sur les budgets-temps (temps passé dans différentes activités au cours de la journée).Le tableau suivant comprend 10 variables numériques et 4 variables catégorisées. Les 10 variables numériques sont: le temps passé en: Profession, Transport, Ménage, Enfants, Courses, Toilette, Repas, Sommeil, Télé, Loisirs.
+
+Les 4 variables catégorisées sont: Le sexe (1=Hommes 2=Femmes), l’activité (1=Actifs 2=Non Act. 9=Non précisé), l’état civil (1=Célibataires 2=Mariés 9=Non précisé), le Pays  (1=USA 2=Pays de l'Ouest 3=Pays de l'Est 4=Yougoslavie).
+
+ Le code suivant est utilisé pour identifier les lignes: H: Hommes, F: Femmes, A: Actifs, N: Non Actifs(ves), M: Mariés, C: Célibataires, U: USA, W: Pays de l'Ouest sauf USA, E : Est sauf Yougoslavie, Y: Yougoslavie
+
+ Les temps sont notés en centièmes d'heures. La première case en haut à gauche du  tableau (HAU) indique que les Hommes Actifs des USA passent en moyenne 6 heures et 6 minutes (6 heures + 10/100 d'heure, soit 6 heures et 6mn) en activité PROFessionnelle. Le total d'une ligne (sur ces 10 variables numériques) est 2400 (24 heures).
+```{r}
+ONU=read.table('ONU.csv',sep=',',h=T,)
+for (i in 11:14) ONU[,i]=as.factor(ONU[,i])
+summary(ONU)
+library(FactoMineR);library(factoextra);library("corrplot")
+```
+
+Pour répondre aux questions, créer un notebook ou un document oo dans lequel vous conserverez les sorties ainsi que vos commentaires. 
+
+0. A quoi sert la ligne 2 de commande? Etudier la matrice des corrélations et conjecturer les axes factorielles et leurs inerties respectives. On pourra utiliser les commandes cor, corrplot ...
+h = T signifie que le nom des colonnes est indiquer dans le fichier
+sep = par quoi est séparé les donné ?
+read table = pour lire le excel/tableau
+ligne 2 : transforme les variables quantitatives en variables qualitatifs
+s'il n'y a pas de corrélations entre variables, l'acp ne sert à rien
+```{r}
+round(cor(ONU[,1:10]),2) #la matrice des corrélations
+corrplot(cor(ONU[,1:10]))
+```
+
+1. Réaliser l'ACP normé de ce tableau, en utilisant les variables qualitatives en supplémentaire.
+il norme automatiquement, mais on aurait pu regardé l'acp non normé car c'est au même unité et dans le même échelle (heure)
+```{r}
+acp=PCA(ONU,quali.sup=11:14) # quali.sup c'est pour les variables qualitatifs suplémentaire , PCA = ACP
+```
+
+2. Déterminer les axes retenus pour l'analyse en justifiant votre choix. Quelle est la qualité de l'ACP dans le plan F1-F2. On pourra utiliser les commandes fviz_eig, acp$eig, barplot...
+une méthode de choix des axes : règle de Kaiser valeurs propres supér à 1
+Attention on ne choisit pas l'axe 3 sans l'axe 4 ici car le pourcentage de donnée apportés est trop porche (13% et 12%)
+```{r}
+acp$eig
+fviz_eig(acp,addlabels = TRUE)
+
+```
+3. Représenter les variables dans le plan F1 - F2. Quelles sont les variables bien représentées dans le plan 1-2?  Quelles sont le variables les plus corrélées entre elles et avec les axes factoriels? les moins corrélées ? On pourra utiliser les commandes $var, fviz_contrib, plot.PCA ...
+Contribution des variables aux axes 
+AXE 1 : - TRAN,PROF
+        + ENF, MENA
+        COUR, SOMM, REPA
+AXE 2 : - SOMM, REPA
+        + TOIL, COUR
+```{r}
+plot.PCA(acp,choix="var",axes = c(1,2)) #on peux choisir de représenter F1 et F3 par exemple, au lieu de F1 et F2 : c(1,3)
+fviz_contrib(acp,"var") # ind (individus) ou var (variables)
+plot.PCA(acp)
+```
+
+4. Représenter les individus dans le plan 1-2 en ne retenant que ceux dont le cos2 est satisfaisant. Quelle est l'individu le mieux représenté.
+```{r}
+plot.PCA(acp,choix="ind",select="cos2 0.5
+         .") #cos2 0.5 : cos2 supé à 0.5 ou select = contrib 5 : on prend les 5 individus qui ont le plus contribué
+corrplot(acp$ind$contrib,is.corr = FALSE)
+fviz_contrib(acp,"ind",axes = 2)
+plot.PCA(acp,choix="ind",select="contrib 10 ") 
+acp$ind
+```
+
+5. Pour chaque axe retenu, quelles sont les variables et individus ayant le plus contribué. On utilisera des graphiques pour justifier le résultat.
+```{}
+
+```
+
+6. Représenter les variables qualitatives. Interpréter le résultat et le test leur correspondant.
+```{r}
+fviz_pca_ind (acp,habillage=11,addEllipses = TRUE)
+fviz_pca_ind (acp,habillage=12,addEllipses = TRUE)
+fviz_pca_ind (acp,habillage=13,addEllipses = TRUE)
+fviz_pca_ind (acp,habillage=14,addEllipses = TRUE)
+```
+7. Réaliser une classification des individus et des variables à l'aide de les fonctions HCPC, kmeans, fviz_cluster.
+```{r}
+HCPC(acp,nb.clust=4)
+
+```
+
+
+8. Proposer une interprétation des résultats. 
+
+
+
+
+
+# Exercice II: Reprendre l'ACP sur le fichier csp.txt
+Le tableau des données indique les dépenses annuelles moyennes de consommation
+de douze catégories socio-professionnelles. Les douze individus du tableau, qui sont ici présentés
+en ligne, désignent des catégories socio-professionnelles caractérisées par la CSP variable
+qualitative à trois modalités (1 = manoeuvre, 2 = employé et 3 = cadre) et le nombre d’enfants
+(2, 3, 4 ou 5). Par exemple, l’individu MA2 désigne la catégorie "manoeuvre avec deux enfants",
+EM2 la catégorie "employé avec deux enfants", CA2 la catégorie "cadre avec deux enfants", etc.
+Les sept premières variables, qui sont présentées ici en colonne, sont les variables actives. Ces
+variables désignent respectivement les dépenses annuelles moyennes de consommation en pain,
+légumes, fruits, viande, volaille, lait et vin. On effectue l’ACP normée (ACPN) de ce tableau en
+considérant comme supplémentaires les variables "csp" et "nb". 
+
+1. Commenter brièvement le tableau des statistiques sommaires.
+```{r}
+CSP =read.table('csp.txt',t=T)
+CSP$nb=as.factor(CSP$nb)
+summary(CSP)
+CSP
+```
+
+2. Que peut-on dire des corrélations entre variables ?
+Les variables légumes, fruit, viande et volaille sont positivement corrélés entre eux.
+Le lait est positivement corrélé au lait, et la viande est très peu corrélée avec les autres variables.
+
+```{r}
+round(cor(CSP[,1:7]),2) #la matrice des corrélations
+corrplot(cor(CSP[,1:7]))
+
+```
+
+
+3. Que vaut l’inertie totale dans l’ACP normée effectuée et la contribution relative de chaque axe à l’inertie totale?
+L'inertie totale est 7 (car on a 7 variables quantitatives)
+La contribution de l'axe 1 à l'inertie totale est de 61,90%
+La contribution de l'axe 2 à l'inertie totale est de 26,15%
+```{r}
+csp=PCA(CSP,quali.sup=8:9) 
+```
+
+
+5. Combien d’axes factoriels pensez-vous qu’il faille retenir ?
+
+On peut choisir de retenir que 2 axes variables (règle de Kaiser et méthode du coude, et on a 88% du jeu de donnés, ce qui est largement suffisant je pense).
+On pourra aussi décider de prendre l'axe 3 (même s'il la contribution n'est que de 9%) mais retenir les axes 4,5,6 et 7 sera inutile au vue de peu d'information qu'ils rapportent.
+```{r}
+csp$eig
+fviz_eig(csp,addlabels = TRUE)
+```
+
+6. Calculer la contribution  de chaque variable  au a ème facteur (a = 1, 2).
+
+```{r}
+fviz_contrib(csp,choice =  "var",axes=1) #la contribution  de chaque variable  au 1 ème facteur 
+fviz_contrib(csp,choice =  "var",axes=2) #la contribution  de chaque variable  au 2 ème facteur 
+```
+
+
+7. Calculer le carré de la corrélation CORa(i) de chaque variable  avec le a ème facteur (a = 1, 2), puis la qualité de la représentation associée QLT2(i) dans le plan factoriel 1  2.
+
+```{r}
+var = get_pca_var(res.pca)
+var$cor
+
+plot.PCA(csp,choix="var",select="cos2 0.5") 
+corrplot(csp$ind$contrib,is.corr = FALSE)
+fviz_cos2(csp, choice = "var", axes = 1:2)
+
+```
+8. Quel est l’intérêt de ranger les variables par corrélation décroissante avec le premier facteur (ou première composante principale) pour examiner la matrice de corrélation ?
+9. Quelles sont les variables caractéristiques du premier axe factoriel ?
+Légume, fruit, viande et volaille.
+```{r}
+
+corrplot(csp$var$contrib,is.corr = FALSE)
+fviz_contrib(csp,"var",axes = 1)
+
+```
+10. Quelles sont les variables caractéristiques du deuxième axe factoriel ?
+Pain, lait et vin.
+```{r}
+fviz_contrib(csp,"var",axes = 2)
+```
+11. Interpréter le cercle des corrélations.
+Tous les variables sont bien représentés, car longueur proche de 1 (le vin est un peu moins bien représenté que les autres variables).
+Volaille et fruit sont fortement corrélés (ils sont superposés). Ces deux variables sont aussi corrélés à Viande.
+Pain et lait sont positivement corrélés.
+Vin et légume ne sont pas corrélés du tout (angle droit).
+```{r}
+plot.PCA(csp,choix="var",select="contrib 10 ")
+```
+12. Quelles sont les observations caractéristiques du premier axe factoriel (on se basera sur les contributions de chaque observation i au premier axe factoriel).
+CA5 et MA2.
+```{r}
+
+fviz_contrib(csp,"ind",axes = 1)
+
+```
+13. Donner la qualité de représentation de chaque observation i sur le plan des deux premiers axes factoriels.
+```{r}
+
+fviz_pca_ind (csp, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),repel = TRUE )
+corrplot(csp$ind$contrib,is.corr = FALSE)
+
+```
+14. Quelles sont les observations caractéristiques du deuxième axe factoriel ?
+MA5, EM2, CA4, MA4 et CA3.
+```{r}
+fviz_contrib(csp,"ind",axes = 2)
+```
+15. Interpréter le plan des deux premiers axes factoriels (on aura intérêt à joindre tous les points associés à une famille ayant le même nombre d’enfants et, de même, tous les points associés à une même CSP).
+```{r}
+fviz_pca_ind (csp,habillage=8,addEllipses = TRUE)
+fviz_pca_ind (csp,habillage=9,addEllipses = TRUE)
+```

@@ -1,0 +1,168 @@
+---
+title: "TP RD6 Analyse des correspondances multiples"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+Le fichier sciences.csv contient des données issues d’une enquête
+réalisée en 1993 auprès de n = 871 enquêtés sur leur avis sur le rôle de la science. Les
+enquêtés doivent répondre s’ils sont d’accord ou non avec les déclarations suivantes :
+
+– A : nous croyons trop souvent en la science et pas assez à l’intuition (aux sentiments et
+aux croyances).
+
+– B : globalement les sciences font plus de mal que de bien.
+
+– C : tous les changements que les hommes font à la nature, aussi scientifiques soient-ils,
+sont suceptibles d’empirer les choses.
+
+– D : la science va résoudre les problèmes d’environnement sans affecter notre façon de
+vivre.
+
+Il y a cinq réponses possibles : 
+
+1 tout à fait d’accord ; 
+
+2 d’accord ; 
+
+3 pas d’avis ; 
+
+4 pas d’accord ; 
+
+5 absolument pas d’accord. 
+
+Puis des questions de signalétique leur ont été posées :
+
+– Sexe : Homme (sex1), Femme (sex2)
+
+– Age (6 classes) : 16-24 (age1), 25-34, 35-44,45-54,55-64, 65 et plus (age6)
+
+– Niveau d’éducation (6 niveaux) : enseignement primaire (edu1), niveau collège, niveau
+lycée, niveau Bac + 2, niveau Bac + 5, niveau Bac + 8 (edu6)
+
+Le but de l’étude est de caractériser, de décrire la population de cette enquête, de faire une
+typologie des enquêtés en fonction de leur attitude vis-à-vis des sciences.
+
+1. Importer le fichier sciences.csv. En utilisant la commande summary, expliquer pourquoi le tableau n'est pas adapté pour une ACM. Le transformer en conséquence.
+Les réponses sont quantitatives, dans une modèle ACM les réponses sont qualitatives.
+```{r eval=FALSE}
+library(FactoMineR)
+library(factoextra)
+data=read.csv("sciences.csv",sep =";")
+summary(data)
+```
+
+1:119  119personnes ont répondu 1 à la question A.
+```{r eval=FALSE}
+for (i in 1:7) data[,i]=as.factor(data[,i])
+summary(data)
+```
+
+2. Construire le tableau disjonctif et le tableau de Burt.
+
+```{r eval=FALSE}
+Z=tab.disjonctif(data)
+t(Z)%*%Z
+```
+
+3. Réaliser l'ACM sans l'analyser de ce tableau avec FactoMineR. 
+3e tab : carré des corrélations (eta2)
+
+```{r eval=FALSE}
+acm=MCA(data)
+```
+4. Toutes les variables ont-elles le même poids? La variable sexe a-t-elle un rôle important? Reprendre l'analyse en mettant cette variable en supplémentaire.
+Le poids dépend du nombre de modalités des variables 
+Le sexe n'a que 2 réponse possible, ça fait biaisé les résultats. Le sexe n'a pas un rôle important donc on va le mettre en supplémentaire.
+Si on regarde les 2 ellipses, ils sont assez centrés l'un sur l'autre, donc le sexe n'est pas assez important.
+On peut observer l'effet Guttmen (tab 3) : les réponses sont très formtements associés l'un à l'autre.
+
+```{r eval=FALSE}
+acm$var$eta2
+plotellipses(acm,keepvar=c(5),means=FALSE)
+acm=MCA(data,quali.sup=5) # colonne 5 est suplémentire, on ne le prend pas en compte mais on la représente quand même
+```
+5. Les représentations graphiques suggèrent un effet particulier, lequel? Expliquez le.
+
+Les matrices sont "similaires" à des matrices diagonales, et sur les graphiques on peut observer une forme de "banane" (le papillon, et c'est plutôt un V je trouve) 
+Tab 2 : plus c'est rouges, plus y'en a et on peut  voir que c'est plus concentré sur la diagonale.
+le table 2 est table(data$A,data$C) mais en couleur 
+
+Tout cela explique l'effet Guttmen.
+
+```{r eval=FALSE}
+table(data$A,data$C)
+image(1:5,1:5,t(table(data$A, data$C)),xlab="C",ylab="A")
+table(data$A,data$B,data$C)
+```
+
+5. Combien d'axes sont définis? Déterminer les axes pertinents
+Avec seulemnt fviz_eig(acm, addlabels = TRUE) c'est assez difficile à choisir étant donné que les pourcentages c'est assez proche.
+Donc on fait Benzecri : seulement 2 axes sont suffisants.
+
+```{r eval=FALSE}
+fviz_eig(acm, addlabels = TRUE)
+E=acm$eig[,1]
+q=length(acm$call$quali)#q = nombre de variables actives
+E[acm$eig[,1]<1/q]=1/q
+E=E[E-1/q>0]
+E
+E=(q/(q-1))^2*(E-1/q)^2 # valeur propre recalculé
+barplot(E)
+title("Diagramme du critère de Benzecri")
+```
+6. Déterminer les variables et les modalités pertinentes pour expliquer le plan F1-F2.
+Suivant l'axe 1 : A, B, C
+Suivant l'axe 2 : A, B, C, D
+L'edu et l'age jouent un rôle moins importants.
+AXE 1 : + A4 A5 B5 C4 C5
+        - A1 A2 B1 B2 C1 edu6 edu2
+
+```{r eval=FALSE}
+acm$var$eta2 # coeff de corrélations pour les variables
+acm$var$v.test # v.test pour les modalités
+plotellipses(acm,means=FALSE)
+```
+7. Comment peut-on expliquer le faible rapport de corrélation entre la 4ème variable D et la première dimension ? 
+C'est pas le même type de question.
+A, B, et C se resemble plus tantdis que D est un peu à part.
+
+8. Interpréter finement la proximité des modalités "C5" et "B5".
+Les individus qui répondent B5 vont surement répondre C5 
+```{r eval=FALSE}
+table(data$B,data$C) #tableau des containgances
+image(1:5,1:5,t(table(data$B, data$C)),xlab="C",ylab="B")
+prop.table(table(data$B,data$C),2) #profil ligne et profil colonne --> surreprésentation de B5 et C5 (très forte proportion)
+```
+
+9. Y-a-t’il un lien entre le niveau d’éducation et le comportement face à la science ?
+Les petits histogrammes, c'est les distributions par rapport à l'education.
+On peut clairement voir le lien entre le niveau d’éducation et le comportement face à la science dans le tableau 2.
+
+```{r eval=FALSE}
+par(mfrow=c(3,2))
+for (i in 1:5) barplot(table(data[data$A==i,"edu"]))
+par(mfrow=c(1,1))
+acm.edu = MCA(data[,c("A","D","edu")])
+
+plot(acm.edu,invisible="ind")
+
+```
+10. Comment sont positionnées les modalités Homme et Femme ?
+C'est assez bien répartis. Même si les femmes sont un peu plus concetré à gauche (peu éduqué) et les hommes un peu plus à droite.
+```{r eval=FALSE}
+plotellipses(acm,keepvar=c(5),means=FALSE)
+```
+11. Comment peut-on faire pour étudier le comportement des femmes qui ont un haut niveau
+d’éducation et des hommes qui ont un haut niveau d’éducation ? Que concluez-vous ?
+```{r eval=FALSE}
+par(mfrow=c(2,1))
+barplot(table(data[data$sex==1 & data$edu==5,"A"]))
+barplot(table(data[data$sex==2 & data$edu==5,"A"]))
+
+```
+12. Comment interpréter la distance entre deux individus ? Pour les modalités d'une même question, il vont répondre les similairement aux autres questions. Quand c'est des questions différentes, les individus proches vont répondre pareil aux mêmes modalités
+Quelle distance est utilisée en AFCM ? Plus la distance est proche de 0 plus ils donnent des réponses communes.
+
